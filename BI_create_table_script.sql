@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS public.organization_user (
 	user_integration_id int4 NULL,
 	status varchar(50) NULL DEFAULT ''::character varying,
 	created_dt timestamptz NULL,
+	role_name varchar,
 	updated_dt timestamptz NULL,
     last_job_date timestamp without time zone default now()
     );
@@ -179,3 +180,17 @@ account_created_dt date,
 account_deleted_dt date,
 last_job_date timestamp without time zone default now()
 );
+
+CREATE TABLE public.tenant (
+	tenant_id int8 NOT NULL,
+	uid varchar(50) NULL,
+	created_dt timestamptz NULL DEFAULT now(),
+	updated_dt timestamptz NULL,
+	subdomain varchar NULL,
+	is_trial bool NULL DEFAULT false,
+	"type" varchar(150) NULL DEFAULT 'onpremise'::character varying,
+	last_job_date timestamp without time zone default now()
+);
+
+
+

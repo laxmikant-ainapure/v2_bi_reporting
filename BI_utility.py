@@ -23,8 +23,8 @@ def get_db_connections():
     gamma_connection=None
     bi_connection=None
     try:
-        gamma_connection = psycopg2.connect(database="gamma", user="gamma_pg", password="nT7qU5m4AymRE9h7WvGp", host="v2-gamma-pg-prod2.ck3qzzly633v.eu-central-1.rds.amazonaws.com", port="5432")
-        bi_connection = psycopg2.connect(database="bi_test", user="postgres", password="postgres", host="127.0.0.1", port="5432")
+        gamma_connection = psycopg2.connect(database="", user="", password="", host="", port="")
+        bi_connection = psycopg2.connect(database="", user="", password="", host="", port="")
     except Exception as error:       
         logging.error(str(error))
     return gamma_connection,bi_connection
@@ -33,7 +33,7 @@ def get_db_connections():
 def truncate_bi_tables(bi_connection):
     try:
         bi_cursor=bi_connection.cursor()
-        table_list=['repository_scan_history','repository_language','repository','organization','organization_user','user_integration','language','license_metrics','user','usage_history','review_request','review_request_queue','deleted_account_details']
+        table_list=['repository_scan_history','repository_language','repository','organization','organization_user','user_integration','language','license_metrics','user','usage_history','review_request','review_request_queue','deleted_account_details','tenant']
         if bi_cursor is not None:
             for table_name in table_list:               
                 bi_cursor.execute("Truncate table public."+table_name+";")
@@ -45,7 +45,28 @@ def truncate_bi_tables(bi_connection):
         logging.error("Error:An exception has occured in truncate_bi_tables", error)
         
         bi_cursor.execute("rollback")
-           
+
+def insert_bi_tenant(gamma_connection , bi_connection):
+    try:
+        bi_cursor=bi_connection.cursor()
+        gamma_cursor=gamma_connection.cursor()
+        if gamma_cursor is not None:
+            gamma_cursor.execute('select id,uid ,created_dt ,updated_dt ,subdomain ,is_trial ,"type" ,now() from tenant t order by id;')
+            df = pd.DataFrame(gamma_cursor.fetchall(),index=None)
+            df=(df.replace({pd.NaT: None, np.NaN: None}))
+            df = df.where(pd.notnull(df), None)
+            tuples = [tuple(x) for x in df.to_numpy()]
+            query  = "INSERT INTO tenant (tenant_id,uid ,created_dt ,updated_dt ,subdomain ,is_trial ,type,last_job_date) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)"
+            bi_cursor.executemany(query, tuples)               
+            bi_connection.commit()
+            return True
+        else:
+            return False
+    except Exception as error:
+        logging.error("Error:An exception has occured in insert_bi_tenant", error)
+
+
+
 def insert_bi_language(gamma_connection , bi_connection):
     try:
         bi_cursor=bi_connection.cursor()
@@ -118,12 +139,12 @@ def insert_bi_organization_user(gamma_connection , bi_connection):
         bi_cursor=bi_connection.cursor()
         gamma_cursor=gamma_connection.cursor()
         if gamma_cursor is not None:
-            gamma_cursor.execute('SELECT id, organization_id, user_integration_id, status, created_dt, now() FROM public.organization_user order by id;')
+            gamma_cursor.execute('SELECT ou.id, ou.organization_id, ou.user_integration_id, ou.status, ou.created_dt,r.identifier as role_name, now() FROM public.organization_user ou inner join "role" r on r.id =ou.role_id order by ou.id;')
             df = pd.DataFrame(gamma_cursor.fetchall(),index=None)
             df=(df.replace({pd.NaT: None, np.NaN: None}))
             df = df.where(pd.notnull(df), None)
             tuples = [tuple(x) for x in df.to_numpy()]      
-            query  = "INSERT INTO organization_user (id, organization_id, user_integration_id, status, created_dt, last_job_date) VALUES(%s,%s,%s,%s,%s,%s)"
+            query  = "INSERT INTO organization_user (id, organization_id, user_integration_id, status, created_dt,role_name, last_job_date) VALUES(%s,%s,%s,%s,%s,%s,%s)"
             bi_cursor.executemany(query, tuples)               
             bi_connection.commit()
             return True
@@ -337,6 +358,16 @@ def data_load_job():
             except:                
                 sys.exit(1)
 
+            # insert bi tenant data
+            try:
+                tenant_flag=insert_bi_tenant(gamma_connection , bi_connection)
+                if tenant_flag==True:
+                    logging.info("Info:Production Gamma tenant data inserted into BI table")           
+                else:
+                    logging.error("Error:Production Gamma tenant data inserting into BI table failed")
+            except:
+                logging.error("Error:Production Gamma tenant data inserting into BI table failed")
+                pass
             # insert bi language data
             try:
                 language_flag=insert_bi_language(gamma_connection , bi_connection)
