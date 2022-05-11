@@ -77,7 +77,14 @@ def generate_scan_details_report(bi_connection):
 	        ' || '
 	        ' (case when DATE_PART('"'day'"', AGE(account_deleted_dt, account_created_dt))::varchar = '"'0'"' then '"'1 Day '"' '
 		    ' else DATE_PART('"'day'"', AGE(account_deleted_dt, account_created_dt))::varchar || '"' Day '"'	end) '
-	        ' as "Account Used Period(Months)" from  deleted_account_details d;');  
+	        ' as "Account Used Period(Months)" from  deleted_account_details d '
+            ' where d.email  not ilike '"'%embold.io'"' and d.email not ilike '"'%acellere.com'"' and d.email not ilike '"'%mygamma.io'"' and '
+            ' d.email not in('"'abhijit.parkhi@gmail.com'"','"'allison.ember@gmail.com'"', '
+            ' '"'patwardhan.supriya@gmail.com'"','"'sudarshan.bhide@gmail.com'"', '
+            ' '"'vikram.fugro@gmail.com'"','"'kochumvk@gmail.com'"', '
+            ' '"'vikrantphadtare9@gmail.com'"','"'phoenixelite265@gmail.com'"','"'repoadder@gmail.com'"', '
+            ' '"'embcheck1@gmail.com'"','"'shekharsvbhosale@gmail.com'"','"'shahajipatil22@gmail.com'"') '             
+            ';');  
 
             scan_columns=[desc[0] for desc in scan_cursor.description]    
             pr_columns=[desc[0] for desc in pr_cursor.description]  
