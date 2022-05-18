@@ -1,4 +1,4 @@
--- Drop table
+-- Drop tables if exits
 
 -- DROP TABLE public."user";
 
