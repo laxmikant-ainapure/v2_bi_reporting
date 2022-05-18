@@ -12,6 +12,7 @@ def main():
         print("Report sending to team")
         scan.scan_details_job()
         print("Report sent")
+        print("Job Finished")
     except Exception as error:
         print(error)
 
