@@ -2,7 +2,7 @@
 
 -- DROP TABLE public."user";
 
-
+-- create all master tables for BI;
 
 CREATE TABLE IF NOT EXISTS public."user" (id bigint not null,	email varchar(255) NULL,	created_dt timestamptz NULL,    last_job_date timestamp without time zone default now()
 );
