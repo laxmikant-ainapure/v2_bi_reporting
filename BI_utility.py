@@ -6,6 +6,7 @@ import sys
 import os
 import logging
 import numpy as np
+import constant as cs
 
 working_dir = os.getcwd()
 
@@ -23,8 +24,8 @@ def get_db_connections():
     gamma_connection=None
     bi_connection=None
     try:
-        gamma_connection = psycopg2.connect(database="", user="", password="", host="", port="")
-        bi_connection = psycopg2.connect(database="", user="", password="", host="", port="")
+        gamma_connection = psycopg2.connect(database=cs.prod_db_name, user=cs.prod_db_user, password=cs.prod_db_password, host=cs.prod_db_host, port=cs.prod_db_port)
+        bi_connection = psycopg2.connect(database=cs.bi_db_name, user=cs.bi_db_user, password=cs.bi_db_password, host=cs.bi_db_host, port=cs.bi_db_port)
     except Exception as error:       
         logging.error(str(error))
     return gamma_connection,bi_connection

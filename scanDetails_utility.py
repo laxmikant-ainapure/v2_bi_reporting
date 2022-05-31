@@ -9,6 +9,8 @@ from email.mime.text import MIMEText
 from email import encoders
 from BI_utility import get_db_connections
 import logging
+import mailer
+import constant as cs
 
 today=str(datetime.strftime(datetime.today(), '%Y-%m-%d'))
 
@@ -109,38 +111,6 @@ def generate_scan_details_report(bi_connection):
         logging.error("Error:An exception has occured in report generating:", error)   
         return file_name
 
-    
-def send_mail(file_name):
-    status_flag=None
-    try:
-        filename = file_name
-        SourcePathName  = file_name 
-        msg = MIMEMultipart()
-        msg['From'] = 'laxmikant.ainapure@embold.io'
-        msg['To'] = 'abhijit.parkhi@embold.io,pankaj.vadnal@embold.io,Supriya.Patwardhan@embold.io,bipin.patel@embold.io,heena.chaudhari@embold.io,sudarshan.bhide@embold.io, darren.dowds@embold.io, archana.athavale@embold.io'
-        #msg['To'] = 'laxmikant.ainapure@embold.io'
-        msg['Subject'] = 'V2 Production Repository and scan details : Auto generated email'
-        body = ' Hi All, \n\n Please find attached file for v2 Production repositories and scans details as of date '+str(today)+ '.  \n\n Please let me know if anyone has suggestions. \n\n Thank you,\n\n Laxmikant.'
-        msg.attach(MIMEText(body, 'plain'))
-        # ATTACHMENT PART OF THE CODE IS HERE
-        attachment = open(SourcePathName, 'rb')
-        part = MIMEBase('application', "octet-stream")
-        part.set_payload((attachment).read())
-        encoders.encode_base64(part)
-        part.add_header('Content-Disposition', "attachment; filename= %s" % filename)
-        msg.attach(part)
-        server = smtplib.SMTP('smtp.office365.com', 587)
-        server.ehlo()
-        server.starttls()
-        server.ehlo()
-        server.login('laxmikant.ainapure@embold.io', 'BLA+@1607')
-        server.send_message(msg)        
-        server.quit()
-        status_flag=True
-    except Exception as error:
-       logging.error("Error:An exception has occured in email sending:", error)
-    return status_flag
-
 def scan_details_job():
     file_name=None
     try:
@@ -160,7 +130,7 @@ def scan_details_job():
             logging.info("Info:V2 scan details report file generated successfully")
             status_flag=True
             try:
-                status_flag=send_mail(file_name) 
+                status_flag=mailer.send_mail(file_name,cs.internal_team_list,cs.internal_team_subject) 
                 if status_flag==True:                   
                     logging.info("Info: File sent to team via email successfully") 
                 else:                    
