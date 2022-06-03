@@ -1,12 +1,12 @@
-#internal_team_list='abhijit.parkhi@embold.io,pankaj.vadnal@embold.io,Supriya.Patwardhan@embold.io,bipin.patel@embold.io,heena.chaudhari@embold.io,sudarshan.bhide@embold.io, darren.dowds@embold.io, archana.athavale@embold.io'
-#developer_list='abhijit.parkhi@embold.io,bipin.patel@embold.io,laxmikant.ainapure@embold.io'
+#internal_team_list=''
+#developer_list=''
 internal_team_subject='V2 Production Repository and scan details : Auto generated email'
 developer_team_subject='V2 Production full scan and review request details : Auto generated email'
-internal_team_list='laxmikant.ainapure@embold.io'
-developer_list='laxmikant.ainapure@embold.io'
+internal_team_list=''
+developer_list=''
 from_mail='emboldinternal@embold.io'
-from_mail_password='ESsdl989'
-
+from_mail_password='123'
+from_mail_password='123'
 #DB configuration
 
 prod_db_name='gamma1309'
