@@ -5,7 +5,7 @@ developer_team_subject='V2 Production full scan and review request details : Aut
 internal_team_list=''
 developer_list=''
 from_mail='emboldinternal@embold.io'
-from_mail_password='123'
+from_mail_password='123'from_mail_password='123'
 from_mail_password='123'
 #DB configuration
 
