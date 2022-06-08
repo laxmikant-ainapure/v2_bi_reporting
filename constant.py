@@ -1,7 +1,7 @@
 #internal_team_list=''
 #developer_list=''
 internal_team_subject='V2 Production Repository and scan details : Auto generated email'
-developer_team_subject='V2 Production full scan and review request details : Auto generated email'
+developer_team_subject=''
 internal_team_list=''
 developer_list=''
 from_mail_password='123'from_mail_password='123'
