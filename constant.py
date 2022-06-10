@@ -4,7 +4,6 @@ internal_team_subject='V2 Production Repository and scan details : Auto generate
 developer_team_subject=''
 internal_team_list=''
 developer_list=''
-from_mail_password='123' *from_mail_password='123'
 from_mail_password='123'
 #DB configuration
 
