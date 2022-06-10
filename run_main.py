@@ -18,6 +18,7 @@ def main():
         print("Job end")
     except Exception as error:
         print(error)
+        print("Error occurred")
 
 if __name__ == "__main__":
     main()
