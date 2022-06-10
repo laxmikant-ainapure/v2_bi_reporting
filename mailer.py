@@ -39,5 +39,6 @@ def send_mail(file_name,to_mail_list,mail_subject):
         server.quit()
         status_flag=True
     except Exception as error:
+        
        logging.error("Error:An exception has occured in email sending:", error)
     return status_flag
