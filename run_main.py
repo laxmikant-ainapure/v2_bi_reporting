@@ -8,7 +8,7 @@ import scan_queuereport_details as scan_stuck
 def main():
     try:
         print("BI job Started")
-      
+      print("BI job Started")
         bi.data_load_job()
         print("BI job finished")
         print("Report sending to team")
