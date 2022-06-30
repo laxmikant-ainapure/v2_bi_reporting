@@ -24,7 +24,7 @@ def generate_scan_queue_details_report(gamma_connection):
         
         if scan_cursor is not None:
 
-            scan_cursor.execute('select rq.scan_id ,r.uid as repository_uid, r.name as repository_name,rq.current_step , rq.status,rq.module_name,rq.started_on,rq.updated_on, '
+            scan_cursor.execute('select rq.scan_id ,r.uid as repository_uid, r.name as repository_name,rq.current_step , rq.status,rq.module_name,rq.started_on::varchar,rq.updated_on::varchar, '
             '	o.slug as organization_slug ,t.uid as tenant_uid, '
             '	(DATE_PART('"'day'"',current_timestamp::timestamp - started_on::timestamp) * 24 + '
             '	 DATE_PART('"'hour'"',  current_timestamp::timestamp-started_on::timestamp ) ) as scan_age '
@@ -33,37 +33,38 @@ def generate_scan_queue_details_report(gamma_connection):
             '   inner join organization o on r.organization_id=o.id '
             '   inner join tenant t on t.id=o.tenant_id '
             '   where (DATE_PART('"'day'"',current_timestamp::timestamp - started_on::timestamp) * 24 + '
-            ' 	 DATE_PART('"'hour'"',  current_timestamp::timestamp-started_on::timestamp ) )>=12;') 
+            ' 	 DATE_PART('"'hour'"',  current_timestamp::timestamp-started_on::timestamp ) )>=12 '
+            '   order by rq.updated_on::varchar desc;') 
 
             pr_cursor.execute('select distinct review_request_id,rq.status,session_id,r.uid as repository_uid,r.name as repository_name, '
-            '  o.slug as organization_slug ,t.uid as tenant_uid,rq.created_on , rq.updated_on, '
+            '  o.slug as organization_slug ,t.uid as tenant_uid,rq.created_on::varchar , rq.updated_on::varchar, '
             '	(DATE_PART('"'day'"',current_timestamp::timestamp - created_on::timestamp) * 24 + '
             ' 	 DATE_PART('"'hour'"',  current_timestamp::timestamp - created_on::timestamp ) ) as scan_age '
             '   from  review_request_queue rq '
             '   inner join repository r on r.uid=rq.repository_uid '
-            '   inner join organization o on r.organization_id=o.id '
+            '   inner join organization o on r.organization_id=o.id '   
             '   inner join tenant t on t.id=o.tenant_id '
             '  where  '
             '  rq.status not in ('"'ABORT'"','"'FAIL'"','"'NO_FILES'"','"'SUCCESS'"') and  '
             '  (DATE_PART('"'day'"',current_timestamp::timestamp - created_on::timestamp) * 24 + '
-            '  	 DATE_PART('"'hour'"',  current_timestamp::timestamp - created_on::timestamp ) )>=12;')
+            '  	 DATE_PART('"'hour'"',  current_timestamp::timestamp - created_on::timestamp ) )>=12 order by rq.updated_on::varchar desc;')
 
             fail_scan_cursor.execute('select t.uid as tenant_uid,o.slug as organization,scan_id,r.uid as repository_uid, '
-            ' repository_id , r.name as repository_name,current_step as reason,rh.status from repository_scan_history  rh  '
+            ' repository_id , r.name as repository_name,current_step as reason,rh.status , rh.started_on::varchar ,rh.ended_on::varchar from repository_scan_history  rh  '
             '   inner join repository r on r.id=rh.repository_id '
             '   inner join organization o on r.organization_id=o.id '
             '   inner join tenant t on t.id=o.tenant_id '
             '   where rh.status='"'FAIL'"'  '
-            '   and started_on between ((current_timestamp - INTERVAL '"'1 DAY'"')::timestamp) and current_timestamp;')
+            '   and started_on between (current_date - (extract(dow from current_date))::int)::timestamp and  ((current_timestamp - INTERVAL '"'1 DAY'"')::timestamp) order by rh.ended_on::varchar desc;')
             
             fail_pr_cursor.execute('select t.uid as tenant_uid,o.slug as organization,repository_uid,r.name as repository_name ,review_request_id,session_id , '
-            '   source_commit_id,destination_commit_id,rq.status '
+            '   source_commit_id,destination_commit_id,rq.status,(meta->>'"'message'"')::varchar as reason ,rq.created_on::varchar , rq.updated_on::varchar '
             '   from review_request_queue  rq '
             '   inner join repository r on r.uid=rq.repository_uid '
             '   inner join organization o on r.organization_id=o.id '
             '   inner join tenant t on t.id=o.tenant_id '
             '   where rq.status='"'FAIL'"'  '
-            '   and created_on between ((current_timestamp - INTERVAL '"'1 DAY'"')::timestamp) and current_timestamp;')
+            '   and created_on between (current_date - (extract(dow from current_date))::int)::timestamp and  ((current_timestamp - INTERVAL '"'1 DAY'"')::timestamp) order by  rq.updated_on::varchar desc;')
 
      
             scan_columns=[desc[0] for desc in scan_cursor.description]    
@@ -79,8 +80,8 @@ def generate_scan_queue_details_report(gamma_connection):
             with pd.ExcelWriter(file_name) as writer:
                 df1.to_excel(writer,sheet_name='Full Scan stuck Details',index=False)
                 df2.to_excel(writer,sheet_name='PR scan stuck Details',index=False)
-                df3.to_excel(writer,sheet_name='Full scan failed Details',index=False)
-                df4.to_excel(writer,sheet_name='PR scan failed Details',index=False) 
+                df3.to_excel(writer,sheet_name='Fullscanfailed(currentweek)',index=False)
+                df4.to_excel(writer,sheet_name='PRscanfailed(currentweek)',index=False) 
             scan_cursor.close()
             pr_cursor.close()
             return file_name         

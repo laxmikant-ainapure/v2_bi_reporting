@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS public.organization (
 CREATE TABLE IF NOT EXISTS public.organization_user (
 	id bigint NOT NULL,
 	organization_id int4 NULL,
-	user_integration_id int4 NULL,
+	user_id int4 NULL,
 	status varchar(50) NULL DEFAULT ''::character varying,
 	created_dt timestamptz NULL,
 	role_name varchar,

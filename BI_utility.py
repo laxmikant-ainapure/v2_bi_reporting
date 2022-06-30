@@ -140,12 +140,12 @@ def insert_bi_organization_user(gamma_connection , bi_connection):
         bi_cursor=bi_connection.cursor()
         gamma_cursor=gamma_connection.cursor()
         if gamma_cursor is not None:
-            gamma_cursor.execute('SELECT ou.id, ou.organization_id, ou.user_integration_id, ou.status, ou.created_dt,r.identifier as role_name, now() FROM public.organization_user ou inner join "role" r on r.id =ou.role_id order by ou.id;')
+            gamma_cursor.execute('SELECT ou.id, ou.organization_id,ou.user_id ,ou.status, ou.created_dt,r.identifier as role_name, now() FROM public.organization_user ou inner join "role" r on r.id =ou.role_id order by ou.id;')
             df = pd.DataFrame(gamma_cursor.fetchall(),index=None)
             df=(df.replace({pd.NaT: None, np.NaN: None}))
             df = df.where(pd.notnull(df), None)
             tuples = [tuple(x) for x in df.to_numpy()]      
-            query  = "INSERT INTO organization_user (id, organization_id, user_integration_id, status, created_dt,role_name, last_job_date) VALUES(%s,%s,%s,%s,%s,%s,%s)"
+            query  = "INSERT INTO organization_user (id, organization_id, user_id, status, created_dt,role_name, last_job_date) VALUES(%s,%s,%s,%s,%s,%s,%s)"
             bi_cursor.executemany(query, tuples)               
             bi_connection.commit()
             return True
