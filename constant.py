@@ -1,10 +1,10 @@
-internal_team_list='laxmikant.ainapure@embold.io'
-developer_list='laxmikant.ainapure@embold.io'
 internal_team_subject='V2 Production Repository and scan details : Auto generated email'
 developer_team_subject='V2 Production full scan and review request details : Auto generated email'
+internal_team_list=''
+developer_list=''
 from_mail='emboldinternal@embold.io'
-from_mail_password='ESsdl989'
-
+from_mail_password=''
+from_mail_password=''
 #DB configuration
 
 prod_db_name='gamma1309'
